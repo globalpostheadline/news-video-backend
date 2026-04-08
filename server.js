@@ -1,18 +1,11 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import OpenAI from 'openai';
-
-dotenv.config();
+// server.js - CommonJS version (works on Render)
+const express = require('express');
+const cors = require('cors');
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
-// OpenAI configuration (optional - add your API key later)
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || 'demo-key',
-});
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -23,28 +16,22 @@ app.get('/', (req, res) => {
     });
 });
 
-// Generate Script using AI
-app.post('/api/generate-script', async (req, res) => {
+// Generate Script
+app.post('/api/generate-script', (req, res) => {
     const { title, body } = req.body;
     
-    try {
-        // Simple script generation (can be enhanced with OpenAI)
-        const sentences = body.split('.');
-        const keyPoints = sentences.slice(0, 3);
-        
-        const script = `🔥 BREAKING: ${title}\n\n📌 ${keyPoints[0] || 'Latest developments'}\n\n📌 ${keyPoints[1] || 'Key updates'}\n\n📌 ${keyPoints[2] || 'What this means'}\n\n🔚 Stay tuned for more updates. Subscribe for breaking news!`;
-        
-        res.json({ success: true, script });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+    const sentences = body.split('.');
+    const keyPoints = sentences.slice(0, 3);
+    
+    const script = `🔥 BREAKING: ${title}\n\n📌 ${keyPoints[0] || 'Latest developments'}\n\n📌 ${keyPoints[1] || 'Key updates'}\n\n📌 ${keyPoints[2] || 'What this means'}\n\n🔚 Stay tuned for more updates. Subscribe for breaking news!`;
+    
+    res.json({ success: true, script });
 });
 
-// Generate Video (simulated - returns sample video)
+// Generate Video
 app.post('/api/generate-video', (req, res) => {
-    const { title, body, theme, voice, music } = req.body;
+    const { title, body, theme } = req.body;
     
-    // Sample video URLs (replace with actual generated videos)
     const sampleVideos = {
         breaking: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
         dark: 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
@@ -54,11 +41,7 @@ app.post('/api/generate-video', (req, res) => {
     
     const videoUrl = sampleVideos[theme] || sampleVideos.breaking;
     
-    res.json({ 
-        success: true, 
-        videoUrl,
-        message: 'Video generated successfully!'
-    });
+    res.json({ success: true, videoUrl });
 });
 
 // Publish endpoint
@@ -67,16 +50,11 @@ app.post('/api/publish', (req, res) => {
     
     res.json({ 
         success: true, 
-        message: `Video would be published to ${platforms.join(', ')}`,
-        publishedUrls: platforms.map(p => ({
-            platform: p,
-            url: `https://${p}.com/watch?v=demo`
-        }))
+        message: `Video would be published to ${platforms.join(', ')}`
     });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`📍 API available at http://localhost:${PORT}`);
 });
